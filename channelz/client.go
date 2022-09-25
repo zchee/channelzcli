@@ -30,7 +30,7 @@ func NewClient(conn *grpc.ClientConn, w io.Writer) *ChannelzClient {
 	}
 }
 
-func (cc *ChannelzClient) Flush() error {
+func (cc *ChannelzClient) Close() error {
 	if cc.w != nil {
 		return cc.w.Flush()
 	}

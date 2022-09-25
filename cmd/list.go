@@ -51,7 +51,7 @@ func (c *ListCommand) Run(cmd *cobra.Command, args []string) error {
 	defer conn.Close()
 
 	cc := channelz.NewClient(conn, c.opts.Output)
-	defer cc.Flush()
+	defer cc.Close()
 
 	switch typ {
 	case "channel":
