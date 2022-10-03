@@ -5,7 +5,18 @@ import (
 	"context"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
+
+func TestMain(m *testing.M) {
+	timeNow = func() time.Time {
+		return time.Date(2018, 12, 01, 21, 33, 20, 123456789, time.UTC)
+	}
+
+	m.Run()
+}
 
 func newTestClient1(b *bytes.Buffer) *ChannelzClient {
 	return &ChannelzClient{
@@ -17,8 +28,8 @@ func newTestClient1(b *bytes.Buffer) *ChannelzClient {
 func assertOutput(t *testing.T, expected, actual string) {
 	expected = strings.TrimSpace(expected)
 	actual = strings.TrimSpace(actual)
-	if expected != actual {
-		t.Errorf("expected:\n%s\ngot:\n%s\n", expected, actual)
+	if diff := cmp.Diff(expected, actual); diff != "" {
+		t.Fatalf("(-want +got):\n%s", diff)
 	}
 }
 
@@ -35,7 +46,7 @@ Calls:
   Started:        	100
   Succeeded:      	90
   Failed:         	10
-  LastCallStarted:	none
+  LastCallStarted:	1970-01-01 00:00:00 +0000 UTC
 `
 		t.Run("ByID", func(t *testing.T) {
 			b.Reset()
@@ -95,7 +106,7 @@ Subchannels:
   0	bar0	READY	100   	90      	10    
 Trace:
   NumEvents:	0
-  CreationTimestamp:	none
+  CreationTimestamp:	1970-01-01 00:00:00 +0000 UTC
 `
 		t.Run("ByID", func(t *testing.T) {
 			b.Reset()
@@ -130,7 +141,7 @@ Subchannels:
   4	bar4	READY	140   	126     	14    
 Trace:
   NumEvents:	0
-  CreationTimestamp:	none
+  CreationTimestamp:	1970-01-01 00:00:00 +0000 UTC
 `
 		t.Run("ByID", func(t *testing.T) {
 			b.Reset()
@@ -153,7 +164,7 @@ func TestListServers(t *testing.T) {
 	t.Run("server", func(t *testing.T) {
 		expected := `
 ID	Name	LocalAddr	Calls	Success	Fail	LastCall
-0	server0	[127.0.1.2]:9000	100   	90    	10    	none
+0	server0	[127.0.1.2]:9000	100   	90    	10    	17866d
 1	server1	[127.0.1.2]:9001	110   	99    	11    	0ms
 `
 		b.Reset()
