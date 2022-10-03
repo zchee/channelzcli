@@ -20,7 +20,7 @@ var timeNow = time.Now
 
 type ChannelzClient struct {
 	cc channelzpb.ChannelzClient
-	w  *tabwriter.Writer
+	w  io.Writer
 }
 
 func NewClient(conn *grpc.ClientConn, w io.Writer) *ChannelzClient {
@@ -32,7 +32,9 @@ func NewClient(conn *grpc.ClientConn, w io.Writer) *ChannelzClient {
 
 func (cc *ChannelzClient) Close() error {
 	if cc.w != nil {
-		return cc.w.Flush()
+		if fl, ok := cc.w.(*tabwriter.Writer); ok {
+			return fl.Flush()
+		}
 	}
 	return nil
 }
